@@ -1,9 +1,4 @@
 #!/usr/bin/python3
-
-"""Module to Write a class Rectangle that
-    defines a rectangle by: (based on 0-rectangle.py)
-"""
-
 class Rectangle:
     """Class Rectangle that defines a rectangle with properties and setters"""
     
