@@ -1,72 +1,136 @@
 #!/usr/bin/python3
 import sys
 
-def print_solution(board):
-    """Print the board with placed queens."""
-    solution = []
-    for row in range(len(board)):
-        for col in range(len(board)):
-            if board[row][col] == 1:
-                solution.append([row, col])
-    print(solution)
+"""Module to solves the N queens problem
+"""
 
-def is_safe(board, row, col):
-    """Check if it's safe to place a queen at board[row][col]."""
-    # Check this row on left side
-    for i in range(col):
-        if board[row][i] == 1:
-            return False
 
-    # Check upper diagonal on left side
-    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
+if len(sys.argv) != 2:
+    print("Usage: nqueens N")
+    exit(1)
 
-    # Check lower diagonal on left side
-    for i, j in zip(range(row, len(board), 1), range(col, -1, -1)):
-        if board[i][j] == 1:
-            return False
+num_s = sys.argv[1]
 
-    return True
+if not num_s.isdigit():
+    print("N must be a number")
+    exit(1)
 
-def solve_nqueens(board, col):
-    """Use backtracking to find all solutions."""
-    # base case: If all queens are placed
-    if col >= len(board):
-        print_solution(board)
-        return
+n = int(num_s)
 
-    # Consider this column and try placing this queen in all rows one by one
-    for i in range(len(board)):
-        if is_safe(board, i, col):
-            # Place this queen in board[i][col]
-            board[i][col] = 1
+if n < 4:
+    print("N must be at least 4")
+    exit(1)
 
-            # recur to place rest of the queens
-            solve_nqueens(board, col + 1)
+arr = [[0 for i in range(n)] for j in range(n)]
 
-            # If placing queen in board[i][col] doesn't lead to a solution, then
-            # remove queen from board[i][col]
-            board[i][col] = 0  # backtrack
 
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: nqueens N")
-        sys.exit(1)
+def is_col_safe(arr, col, n):
+    for i in range(n):
+        if arr[i][col] == 1:
+            return (1)
+    return (0)
 
-    try:
-        N = int(sys.argv[1])
-    except ValueError:
-        print("N must be a number")
-        sys.exit(1)
 
-    if N < 4:
-        print("N must be at least 4")
-        sys.exit(1)
+def is_row_safe(arr, row, n):
+    for i in range(n):
+        if arr[row][i] == 1:
+            return (1)
+    return (0)
 
-    # Initialization of board
-    board = [[0 for _ in range(N)] for _ in range(N)]
-    solve_nqueens(board, 0)
 
-if __name__ == "__main__":
-    main()
+def is_dbr_safe(arr, row, col, n):
+    while (row < n and col < n):
+        if arr[row][col] == 1:
+            return (1)
+        row += 1
+        col += 1
+    return (0)
+
+
+def is_dbl_safe(arr, row, col, n):
+    while (row < n and col >= 0):
+        if arr[row][col] == 1:
+            return (1)
+        row += 1
+        col -= 1
+    return (0)
+
+
+def is_dtr_safe(arr, row, col, n):
+    while (row >= 0 and col >= 0):
+        if arr[row][col] == 1:
+            return (1)
+        row -= 1
+        col -= 1
+    return (0)
+
+
+def is_dtl_safe(arr, row, col, n):
+    while (row >= 0 and col < n):
+        if arr[row][col] == 1:
+            return (1)
+        row -= 1
+        col += 1
+    return (0)
+
+
+def solution(arr, n):
+    c = 0
+    r = 0
+    n_len = 0
+    track = 0
+    index = []
+    result = []
+
+    while (c >= 0 and c < n):
+        if is_col_safe(arr, c, n):
+            if track:
+                arr[c][index[-1]] = 0
+                r = index[-1]
+                index.pop()
+                result.pop()
+            else:
+                c += 1
+                continue
+        while (r >= 0 and r < n):
+            if is_row_safe(arr, r, n):
+                r += 1
+                continue
+            if is_dbr_safe(arr, r, c, n):
+                r += 1
+                continue
+            if is_dbl_safe(arr, r, c, n):
+                r += 1
+                continue
+            if is_dtr_safe(arr, r, c, n):
+                r += 1
+                continue
+            if is_dtl_safe(arr, r, c, n):
+                r += 1
+                continue
+
+            arr[r][c] = 1
+            result.append([c, r])
+            index.append(r)
+            r = 0
+            break
+        if r == n:
+            c -= 1
+            if len(index) > 0:
+                arr[index[-1]][c] = 0
+                r = index[-1] + 1
+                index.pop()
+                result.pop()
+            continue
+        c += 1
+        if c == n and len(index) > 0:
+            print(result)
+            result = []
+            r = index[0] + 1
+            c = 0
+            index = []
+            track = 0
+            arr = [[0 for i in range(n)] for j in range(n)]
+
+
+solution(arr, n)
